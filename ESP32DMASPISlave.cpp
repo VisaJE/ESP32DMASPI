@@ -2,14 +2,20 @@
 
 ARDUINO_ESP32_DMA_SPI_NAMESPACE_BEGIN
 
-void spi_slave_setup_done(spi_slave_transaction_t* trans) {
-    // printf("[callback] SPI slave setup finished\n");
+void Slave::spi_slave_setup_done(spi_slave_transaction_t *trans)
+{
+  // printf("[callback] SPI slave setup finished\n");
+  auto cb = ((Slave *)trans->user)->post_setup;
+  if (cb) cb(trans);
 }
 
-void spi_slave_trans_done(spi_slave_transaction_t* trans) {
-    // printf("[callback] SPI slave transaction finished\n");
-    ((Slave*)trans->user)->results.push_back(trans->trans_len);
-    ((Slave*)trans->user)->transactions.pop_front();
+void Slave::spi_slave_trans_done(spi_slave_transaction_t *trans)
+{
+  // printf("[callback] SPI slave transaction finished\n");
+  ((Slave *)trans->user)->results.push_back(trans->trans_len);
+  ((Slave *)trans->user)->transactions.pop_front();
+  auto cb = ((Slave *)trans->user)->post_trans;
+  if (cb) cb(trans);
 }
 
 bool Slave::begin(const uint8_t spi_bus, const int8_t sck, const int8_t miso, const int8_t mosi, const int8_t ss) {
@@ -30,9 +36,10 @@ bool Slave::begin(const uint8_t spi_bus, const int8_t sck, const int8_t miso, co
     if_cfg.flags = 0;  // Bitwise OR of SPI_SLAVE_* flags
     if_cfg.queue_size = queue_size;
     if_cfg.mode = mode;  // must be 1 or 3 if DMA is used
-    // TODO: callbacks
     if_cfg.post_setup_cb = spi_slave_setup_done;
     if_cfg.post_trans_cb = spi_slave_trans_done;
+    post_setup = post_setup;
+    post_trans = post_trans;
 
     // make sure to use DMA buffer
     if ((dma_chan != 1) && (dma_chan != 2)) {

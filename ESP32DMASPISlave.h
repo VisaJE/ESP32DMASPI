@@ -14,8 +14,9 @@ namespace esp32 {
 
             class Slave {
                 // callbacks
-                friend void spi_slave_setup_done(spi_slave_transaction_t* trans);
-                friend void spi_slave_trans_done(spi_slave_transaction_t* trans);
+                inline static void spi_slave_setup_done(spi_slave_transaction_t* trans);
+                inline static void spi_slave_trans_done(spi_slave_transaction_t* trans);
+                slave_transaction_cb_t post_setup, post_trans;
 
                 spi_slave_interface_config_t if_cfg;
                 spi_bus_config_t bus_cfg;
