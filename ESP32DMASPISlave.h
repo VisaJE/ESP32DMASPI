@@ -32,7 +32,8 @@ namespace esp32 {
                 std::deque<uint32_t> results;
 
             public:
-                bool begin(const uint8_t spi_bus = HSPI, const int8_t sck = -1, const int8_t miso = -1, const int8_t mosi = -1, const int8_t ss = -1);
+                bool begin(const uint8_t spi_bus = HSPI, const int8_t sck = -1, const int8_t miso = -1, const int8_t mosi = -1, const int8_t ss = -1,
+                   slave_transaction_cb_t post_setup=nullptr, slave_transaction_cb_t post_transaction=nullptr);
                 bool end();
 
                 uint8_t* allocDMABuffer(const size_t s);

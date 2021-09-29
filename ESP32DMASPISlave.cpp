@@ -18,7 +18,8 @@ void Slave::spi_slave_trans_done(spi_slave_transaction_t *trans)
   if (cb) cb(trans);
 }
 
-bool Slave::begin(const uint8_t spi_bus, const int8_t sck, const int8_t miso, const int8_t mosi, const int8_t ss) {
+bool Slave::begin(const uint8_t spi_bus, const int8_t sck, const int8_t miso, const int8_t mosi, const int8_t ss,
+                  slave_transaction_cb_t post_setup, slave_transaction_cb_t post_transaction) {
     if ((sck == -1) && (miso == -1) && (mosi == -1) && (ss == -1)) {
         bus_cfg.sclk_io_num = (spi_bus == VSPI) ? SCK : 14;
         bus_cfg.miso_io_num = (spi_bus == VSPI) ? MISO : 12;
@@ -38,8 +39,8 @@ bool Slave::begin(const uint8_t spi_bus, const int8_t sck, const int8_t miso, co
     if_cfg.mode = mode;  // must be 1 or 3 if DMA is used
     if_cfg.post_setup_cb = spi_slave_setup_done;
     if_cfg.post_trans_cb = spi_slave_trans_done;
-    post_setup = post_setup;
-    post_trans = post_trans;
+    this->post_setup = post_setup;
+    this->post_trans = post_transaction;
 
     // make sure to use DMA buffer
     if ((dma_chan != 1) && (dma_chan != 2)) {
