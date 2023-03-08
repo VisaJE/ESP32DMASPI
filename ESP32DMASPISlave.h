@@ -79,7 +79,7 @@ class Slave
     // use HSPI or VSPI with your own pin assignment
     bool begin(const uint8_t spi_bus, const int8_t sck, const int8_t miso, const int8_t mosi,
                const int8_t ss, slave_transaction_cb_t post_setup = nullptr,
-               slave_transaction_cb_t post_transaction = nullptr);
+               slave_transaction_cb_t post_transaction = nullptr)
     {
         bus_cfg.mosi_io_num = mosi;
         bus_cfg.miso_io_num = miso;
