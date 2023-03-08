@@ -34,8 +34,9 @@ void task_process_buffer(void* pvParameters) {
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         // show received data
-        for (size_t i = 0; i < BUFFER_SIZE; ++i)
+        for (size_t i = 0; i < BUFFER_SIZE; ++i) {
             printf("%d ", spi_slave_rx_buf[i]);
+        }
         printf("\n");
 
         slave.pop();
@@ -55,19 +56,25 @@ void setup() {
 
     delay(5000);
 
-    slave.setDataMode(SPI_MODE3);
+    // slave device configuration
+    slave.setDataMode(SPI_MODE0);
     slave.setMaxTransferSize(BUFFER_SIZE);
-    slave.setDMAChannel(2);  // 1 or 2 only
-    slave.setQueueSize(1);   // transaction queue size
+
     // begin() after setting
-    // HSPI = CS: 15, CLK: 14, MOSI: 13, MISO: 12
-    slave.begin(HSPI);
+    slave.begin();  // HSPI = CS: 15, CLK: 14, MOSI: 13, MISO: 12 -> default
+                    // VSPI (CS:  5, CLK: 18, MOSI: 23, MISO: 19)
 
     xTaskCreatePinnedToCore(task_wait_spi, "task_wait_spi", 2048, NULL, 2, &task_handle_wait_spi, CORE_TASK_SPI_SLAVE);
     xTaskNotifyGive(task_handle_wait_spi);
 
-    xTaskCreatePinnedToCore(task_process_buffer, "task_process_buffer", 2048, NULL, 2, &task_handle_process_buffer, CORE_TASK_PROCESS_BUFFER);
+    xTaskCreatePinnedToCore(
+        task_process_buffer,
+        "task_process_buffer",
+        2048,
+        NULL,
+        2,
+        &task_handle_process_buffer,
+        CORE_TASK_PROCESS_BUFFER);
 }
 
-void loop() {
-}
+void loop() {}
